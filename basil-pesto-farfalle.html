@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Basil Pesto Farfalle</title>
+<style>
+  :root {
+    --bg:#fbf7f0; --card:#ffffff; --ink:#2a2320; --muted:#8a7d70;
+    --line:#ece3d6; --accent:#c0562b; --accent-soft:#fdeee6;
+    --warn:#b9770e; --warn-bg:#fef6e3; --done:#3f8a4f;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; }
+  body {
+    background:var(--bg); color:var(--ink);
+    font:18px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap { max-width:640px; margin:0 auto; padding:18px 16px 120px; }
+  a { color:var(--accent); }
+  h1 { font-size:27px; line-height:1.25; margin:4px 0 6px; }
+  .meta { color:var(--muted); font-size:15px; margin-bottom:14px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 18px; }
+  .chip { background:var(--accent-soft); color:var(--accent); border-radius:999px;
+          padding:6px 13px; font-size:14px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px;
+          padding:16px 16px 6px; margin-bottom:16px; }
+  h2 { font-size:15px; letter-spacing:.06em; text-transform:uppercase;
+       color:var(--muted); margin:2px 0 12px; }
+  ul.ing { list-style:none; margin:0; padding:0; }
+  ul.ing li { display:flex; gap:10px; padding:11px 2px; border-bottom:1px solid var(--line);
+              align-items:baseline; }
+  ul.ing li:last-child { border-bottom:none; }
+  .amt { font-weight:700; color:var(--accent); flex:0 0 auto; min-width:78px; }
+  .amt.none { color:var(--warn); }
+  .it { flex:1; }
+  .note { display:block; font-size:13px; color:var(--warn); background:var(--warn-bg);
+          padding:2px 8px; border-radius:6px; margin-top:4px; }
+  ol.steps { margin:0; padding:0; counter-reset:s; list-style:none; }
+  ol.steps li { counter-increment:s; position:relative; padding:12px 0 12px 44px;
+                border-bottom:1px solid var(--line); }
+  ol.steps li:last-child { border-bottom:none; }
+  ol.steps li::before { content:counter(s); position:absolute; left:0; top:11px;
+        width:30px; height:30px; border-radius:50%; background:var(--accent-soft);
+        color:var(--accent); font-weight:700; font-size:15px;
+        display:flex; align-items:center; justify-content:center; }
+  .jump { font-size:13px; color:var(--muted); text-decoration:none; margin-left:6px;
+          white-space:nowrap; }
+  .cookbtn { position:fixed; left:50%; transform:translateX(-50%);
+        bottom:calc(18px + env(safe-area-inset-bottom)); z-index:20;
+        background:var(--accent); color:#fff; border:none; border-radius:999px;
+        padding:15px 30px; font-size:18px; font-weight:700; box-shadow:0 6px 20px rgba(192,86,43,.35);
+        cursor:pointer; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .back { color:var(--muted); text-decoration:none; font-size:15px; }
+
+  /* Cook mode overlay */
+  .cook { position:fixed; inset:0; background:var(--bg); z-index:50; display:none;
+          flex-direction:column; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .cook.on { display:flex; }
+  .cook header { display:flex; align-items:center; justify-content:space-between;
+                 padding:14px 18px; border-bottom:1px solid var(--line); }
+  .cook header .x { font-size:26px; background:none; border:none; color:var(--muted); cursor:pointer; }
+  .dots { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; flex:1; padding:0 10px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .dot.on { background:var(--accent); }
+  .dot.past { background:var(--done); }
+  .stepwrap { flex:1; display:flex; flex-direction:column; justify-content:center;
+              padding:20px 26px; overflow:auto; }
+  .stepnum { color:var(--accent); font-weight:700; font-size:16px; letter-spacing:.05em; margin-bottom:14px; }
+  .steptext { font-size:30px; line-height:1.4; font-weight:500; }
+  .stepjump { margin-top:22px; }
+  .nav { display:flex; gap:12px; padding:16px 18px; border-top:1px solid var(--line); }
+  .nav button { flex:1; padding:18px; font-size:19px; font-weight:700; border-radius:14px;
+                border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  .nav button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .nav button:disabled { opacity:.4; }
+  .awake { text-align:center; font-size:13px; color:var(--muted); padding:0 0 8px; }
+  .ingbar { padding:10px 18px; border-top:1px solid var(--line); }
+  .ingbar summary { font-size:15px; color:var(--accent); font-weight:600; cursor:pointer; }
+  .ingbar ul { list-style:none; margin:8px 0 4px; padding:0; max-height:38vh; overflow:auto; }
+  .ingbar li { padding:6px 0; border-bottom:1px solid var(--line); }
+  .ingbar .amt { display:inline-block; }
+
+  /* Inline video */
+  .ratio { position:relative; width:100%; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#000; }
+  .ratio iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .player-card[hidden] { display:none; }
+  .player-card { padding:12px; }
+  .closevid { margin-top:10px; background:none; border:1px solid var(--line); border-radius:10px;
+              padding:8px 14px; color:var(--muted); font-size:14px; cursor:pointer; }
+  a.jump { background:var(--accent-soft); padding:3px 9px; border-radius:8px; font-weight:600;
+           color:var(--accent); }
+  .watchbtn { background:var(--accent-soft); color:var(--accent); border:none; border-radius:10px;
+              padding:11px 18px; font-size:15px; font-weight:700; cursor:pointer; }
+  .cookplayer { position:absolute; inset:0; background:#000; display:none; flex-direction:column; z-index:30; }
+  .cookplayer.show { display:flex; }
+  .cookplayer .closevid { margin:12px; align-self:flex-end; color:#fff; border-color:#555; }
+  .cookplayer .vidwrap { flex:1; display:flex; align-items:center; padding:0 14px; }
+  .cookplayer .ratio { width:100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">‹ All recipes</a>
+    <a class="back" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ" target="_blank" rel="noopener">Watch video ↗</a>
+  </div>
+  <h1>Basil Pesto Farfalle</h1>
+  <div class="meta">From Joshua Weissman — 3 Lazy Pasta Recipes (3 of 3)</div>
+  <div class="chips"><span class="chip">⏲ ~15 min</span><span class="chip">📋 8 steps</span></div>
+
+  <div class="card player-card" id="playerCard" hidden>
+    <div class="ratio"><iframe id="ytplayer" title="Recipe video"
+         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <button class="closevid" onclick="hideMain()">✕ Close video</button>
+  </div>
+
+  <div class="card">
+    <h2>Ingredients</h2>
+    <ul class="ing"><li><span class="amt">½ cup</span><span class="it">spinach</span></li><li><span class="amt">2 cups</span><span class="it">fresh basil</span></li><li><span class="amt">5 cloves</span><span class="it">garlic</span></li><li><span class="amt">⅓ cup</span><span class="it">toasted pine nuts</span></li><li><span class="amt">½ cup</span><span class="it">pecorino, grated<span class="note">⚠ Plus ½ cup parmigiano below; you can use all of one cheese if you prefer.</span></span></li><li><span class="amt">½ cup</span><span class="it">parmigiano-reggiano, grated<span class="note">⚠ 1 cup of cheese total with the pecorino.</span></span></li><li><span class="amt">½ cup</span><span class="it">extra virgin olive oil</span></li><li><span class="amt none">—</span><span class="it">water, to loosen<span class="note">⚠ Added a little at a time while blending — don&#x27;t make it liquidy. Amount not stated.</span></span></li><li><span class="amt none">—</span><span class="it">salt<span class="note">⚠ To taste — amount not stated.</span></span></li><li><span class="amt">1 lb</span><span class="it">farfalle (or any pasta)</span></li><li><span class="amt none">—</span><span class="it">pecorino or parmigiano, to finish<span class="note">⚠ Optional. Amount not stated.</span></span></li></ul>
+  </div>
+
+  <div class="card">
+    <h2>Steps</h2>
+    <ol class="steps"><li>Bring a pot of water to a boil. Add ½ cup spinach and 2 cups fresh basil, cut the heat, and dunk them briefly to blanch (just a few seconds). <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=707s" onclick="seekMain(707);return false;">⏱ 11:47 watch</a></li><li>Lift everything out and plunge into a bowl of ice water to chill fast. Then gently wring out as much moisture as you can without bruising it. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=730s" onclick="seekMain(730);return false;">⏱ 12:10 watch</a></li><li>Add the blanched spinach and basil to a blender with 5 garlic cloves, ⅓ cup toasted pine nuts, and ½ cup each of pecorino and parmigiano-reggiano. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=750s" onclick="seekMain(750);return false;">⏱ 12:30 watch</a></li><li>Blend on low, adding a little water at a time to loosen so it blends easily (use the plunger as needed). Don&#x27;t add too much — you don&#x27;t want a watery sauce. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=760s" onclick="seekMain(760);return false;">⏱ 12:40 watch</a></li><li>With the blender on high, stream in ½ cup extra virgin olive oil to emulsify. Season with salt to taste. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=780s" onclick="seekMain(780);return false;">⏱ 13:00 watch</a></li><li>Cook 1 lb farfalle. In a large skillet, pour in about half the pesto, add the cooked farfalle, then add more pesto to fully coat. Toss well so every piece is covered. (You may have pesto left over.) <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=898s" onclick="seekMain(898);return false;">⏱ 14:58 watch</a></li><li>Ladle into a bowl and finish with a little pecorino and/or parmigiano. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=910s" onclick="seekMain(910);return false;">⏱ 15:10 watch</a></li><li>NO BLENDER? Hand method: rough-chop 2 cups basil. Separately crush ⅓ cup toasted pine nuts (press with a heavy bowl/pan). Combine and rock-chop until fine. Finely chop 5 smashed garlic cloves with a pinch of salt and mix in. Chop in ½ cup cheese, then stir in ¼ cup olive oil followed by the rest, with salt to taste. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=796s" onclick="seekMain(796);return false;">⏱ 13:16 watch</a></li></ol>
+  </div>
+</div>
+
+<button class="cookbtn" onclick="openCook()">▶ Cook mode</button>
+
+<div class="cook" id="cook">
+  <header>
+    <div class="dots" id="dots"></div>
+    <button class="x" onclick="closeCook()">✕</button>
+  </header>
+  <div class="stepwrap">
+    <div class="stepnum" id="stepnum"></div>
+    <div class="steptext" id="steptext"></div>
+    <div class="stepjump" id="stepjump"></div>
+  </div>
+  <div class="cookplayer" id="cookPlayer">
+    <button class="closevid" onclick="hideCook()">✕ Back to step</button>
+    <div class="vidwrap"><div class="ratio"><iframe id="cookyt" title="Recipe video"
+         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></div>
+  </div>
+  <div class="awake" id="awake"></div>
+  <details class="ingbar">
+    <summary>Show ingredients</summary>
+    <ul class="ing"><li><span class="amt">½ cup</span><span class="it">spinach</span></li><li><span class="amt">2 cups</span><span class="it">fresh basil</span></li><li><span class="amt">5 cloves</span><span class="it">garlic</span></li><li><span class="amt">⅓ cup</span><span class="it">toasted pine nuts</span></li><li><span class="amt">½ cup</span><span class="it">pecorino, grated<span class="note">⚠ Plus ½ cup parmigiano below; you can use all of one cheese if you prefer.</span></span></li><li><span class="amt">½ cup</span><span class="it">parmigiano-reggiano, grated<span class="note">⚠ 1 cup of cheese total with the pecorino.</span></span></li><li><span class="amt">½ cup</span><span class="it">extra virgin olive oil</span></li><li><span class="amt none">—</span><span class="it">water, to loosen<span class="note">⚠ Added a little at a time while blending — don&#x27;t make it liquidy. Amount not stated.</span></span></li><li><span class="amt none">—</span><span class="it">salt<span class="note">⚠ To taste — amount not stated.</span></span></li><li><span class="amt">1 lb</span><span class="it">farfalle (or any pasta)</span></li><li><span class="amt none">—</span><span class="it">pecorino or parmigiano, to finish<span class="note">⚠ Optional. Amount not stated.</span></span></li></ul>
+  </details>
+  <div class="nav">
+    <button id="prev" onclick="go(-1)">‹ Back</button>
+    <button id="next" class="primary" onclick="go(1)">Next ›</button>
+  </div>
+</div>
+
+<script>
+const STEPS = [{"text": "Bring a pot of water to a boil. Add ½ cup spinach and 2 cups fresh basil, cut the heat, and dunk them briefly to blanch (just a few seconds).", "timestamp": 707}, {"text": "Lift everything out and plunge into a bowl of ice water to chill fast. Then gently wring out as much moisture as you can without bruising it.", "timestamp": 730}, {"text": "Add the blanched spinach and basil to a blender with 5 garlic cloves, ⅓ cup toasted pine nuts, and ½ cup each of pecorino and parmigiano-reggiano.", "timestamp": 750}, {"text": "Blend on low, adding a little water at a time to loosen so it blends easily (use the plunger as needed). Don't add too much — you don't want a watery sauce.", "timestamp": 760}, {"text": "With the blender on high, stream in ½ cup extra virgin olive oil to emulsify. Season with salt to taste.", "timestamp": 780}, {"text": "Cook 1 lb farfalle. In a large skillet, pour in about half the pesto, add the cooked farfalle, then add more pesto to fully coat. Toss well so every piece is covered. (You may have pesto left over.)", "timestamp": 898}, {"text": "Ladle into a bowl and finish with a little pecorino and/or parmigiano.", "timestamp": 910}, {"text": "NO BLENDER? Hand method: rough-chop 2 cups basil. Separately crush ⅓ cup toasted pine nuts (press with a heavy bowl/pan). Combine and rock-chop until fine. Finely chop 5 smashed garlic cloves with a pinch of salt and mix in. Chop in ½ cup cheese, then stir in ¼ cup olive oil followed by the rest, with salt to taste.", "timestamp": 796}];
+const SRC = "https://www.youtube.com/watch?v=7TIrZDzLnAQ";
+const VIDEO_ID = "7TIrZDzLnAQ";
+let i = 0, wakeLock = null;
+
+function embedUrl(sec) {
+  return 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
+         '?start=' + Math.floor(sec) + '&autoplay=1&rel=0&playsinline=1';
+}
+function watchUrl(sec) {
+  return SRC + (SRC.includes('?') ? '&' : '?') + 't=' + Math.floor(sec) + 's';
+}
+function embedsBlocked() { return location.protocol === 'file:'; }
+function seekMain(sec) {
+  if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
+  const c = document.getElementById('playerCard');
+  document.getElementById('ytplayer').src = embedUrl(sec);
+  c.hidden = false; c.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function hideMain() {
+  document.getElementById('ytplayer').src = '';
+  document.getElementById('playerCard').hidden = true;
+}
+function seekCook(sec) {
+  if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
+  document.getElementById('cookyt').src = embedUrl(sec);
+  document.getElementById('cookPlayer').classList.add('show');
+}
+function hideCook() {
+  document.getElementById('cookyt').src = '';
+  document.getElementById('cookPlayer').classList.remove('show');
+}
+
+function tsUrl(t) {
+  if (t == null || !SRC) return null;
+  const sep = SRC.includes('?') ? '&' : '?';
+  return SRC + sep + 't=' + Math.floor(t) + 's';
+}
+function fmtTs(t) { if (t==null) return ''; t=Math.floor(t); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+
+function buildDots() {
+  const d = document.getElementById('dots'); d.innerHTML='';
+  STEPS.forEach((_,n)=>{ const e=document.createElement('div'); e.className='dot'; e.dataset.n=n; d.appendChild(e); });
+}
+function render() {
+  const s = STEPS[i];
+  document.getElementById('stepnum').textContent = 'STEP ' + (i+1) + ' OF ' + STEPS.length;
+  document.getElementById('steptext').textContent = s.text;
+  const jump = document.getElementById('stepjump');
+  const u = tsUrl(s.timestamp);
+  jump.innerHTML = (s.timestamp!=null) ? '<button class="watchbtn" onclick="seekCook('+Math.floor(s.timestamp)+')">⏱ Watch this moment ('+fmtTs(s.timestamp)+')</button>' : '';
+  document.querySelectorAll('.dot').forEach((e,n)=>{ e.className='dot'+(n<i?' past':n===i?' on':''); });
+  document.getElementById('prev').disabled = i===0;
+  const nx = document.getElementById('next');
+  nx.textContent = i===STEPS.length-1 ? '✓ Done' : 'Next ›';
+}
+function go(d) {
+  if (i===STEPS.length-1 && d===1) { closeCook(); return; }
+  hideCook();
+  i = Math.max(0, Math.min(STEPS.length-1, i+d)); render();
+}
+async function openCook() {
+  i=0; buildDots(); render(); hideCook();
+  document.getElementById('cook').classList.add('on');
+  try { wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('awake').textContent='Screen will stay awake while cooking'; }
+  catch(e) { document.getElementById('awake').textContent=''; }
+}
+function closeCook() {
+  hideCook();
+  document.getElementById('cook').classList.remove('on');
+  if (wakeLock) { wakeLock.release(); wakeLock=null; }
+}
+document.addEventListener('keydown', e=>{
+  if (!document.getElementById('cook').classList.contains('on')) return;
+  if (e.key==='ArrowRight') go(1); if (e.key==='ArrowLeft') go(-1); if (e.key==='Escape') closeCook();
+});
+</script>
+</body>
+</html>

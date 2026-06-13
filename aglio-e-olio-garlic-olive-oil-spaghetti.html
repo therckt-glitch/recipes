@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aglio e Olio (Garlic &amp; Olive Oil Spaghetti)</title>
+<style>
+  :root {
+    --bg:#fbf7f0; --card:#ffffff; --ink:#2a2320; --muted:#8a7d70;
+    --line:#ece3d6; --accent:#c0562b; --accent-soft:#fdeee6;
+    --warn:#b9770e; --warn-bg:#fef6e3; --done:#3f8a4f;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; }
+  body {
+    background:var(--bg); color:var(--ink);
+    font:18px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap { max-width:640px; margin:0 auto; padding:18px 16px 120px; }
+  a { color:var(--accent); }
+  h1 { font-size:27px; line-height:1.25; margin:4px 0 6px; }
+  .meta { color:var(--muted); font-size:15px; margin-bottom:14px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 18px; }
+  .chip { background:var(--accent-soft); color:var(--accent); border-radius:999px;
+          padding:6px 13px; font-size:14px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px;
+          padding:16px 16px 6px; margin-bottom:16px; }
+  h2 { font-size:15px; letter-spacing:.06em; text-transform:uppercase;
+       color:var(--muted); margin:2px 0 12px; }
+  ul.ing { list-style:none; margin:0; padding:0; }
+  ul.ing li { display:flex; gap:10px; padding:11px 2px; border-bottom:1px solid var(--line);
+              align-items:baseline; }
+  ul.ing li:last-child { border-bottom:none; }
+  .amt { font-weight:700; color:var(--accent); flex:0 0 auto; min-width:78px; }
+  .amt.none { color:var(--warn); }
+  .it { flex:1; }
+  .note { display:block; font-size:13px; color:var(--warn); background:var(--warn-bg);
+          padding:2px 8px; border-radius:6px; margin-top:4px; }
+  ol.steps { margin:0; padding:0; counter-reset:s; list-style:none; }
+  ol.steps li { counter-increment:s; position:relative; padding:12px 0 12px 44px;
+                border-bottom:1px solid var(--line); }
+  ol.steps li:last-child { border-bottom:none; }
+  ol.steps li::before { content:counter(s); position:absolute; left:0; top:11px;
+        width:30px; height:30px; border-radius:50%; background:var(--accent-soft);
+        color:var(--accent); font-weight:700; font-size:15px;
+        display:flex; align-items:center; justify-content:center; }
+  .jump { font-size:13px; color:var(--muted); text-decoration:none; margin-left:6px;
+          white-space:nowrap; }
+  .cookbtn { position:fixed; left:50%; transform:translateX(-50%);
+        bottom:calc(18px + env(safe-area-inset-bottom)); z-index:20;
+        background:var(--accent); color:#fff; border:none; border-radius:999px;
+        padding:15px 30px; font-size:18px; font-weight:700; box-shadow:0 6px 20px rgba(192,86,43,.35);
+        cursor:pointer; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .back { color:var(--muted); text-decoration:none; font-size:15px; }
+
+  /* Cook mode overlay */
+  .cook { position:fixed; inset:0; background:var(--bg); z-index:50; display:none;
+          flex-direction:column; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .cook.on { display:flex; }
+  .cook header { display:flex; align-items:center; justify-content:space-between;
+                 padding:14px 18px; border-bottom:1px solid var(--line); }
+  .cook header .x { font-size:26px; background:none; border:none; color:var(--muted); cursor:pointer; }
+  .dots { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; flex:1; padding:0 10px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .dot.on { background:var(--accent); }
+  .dot.past { background:var(--done); }
+  .stepwrap { flex:1; display:flex; flex-direction:column; justify-content:center;
+              padding:20px 26px; overflow:auto; }
+  .stepnum { color:var(--accent); font-weight:700; font-size:16px; letter-spacing:.05em; margin-bottom:14px; }
+  .steptext { font-size:30px; line-height:1.4; font-weight:500; }
+  .stepjump { margin-top:22px; }
+  .nav { display:flex; gap:12px; padding:16px 18px; border-top:1px solid var(--line); }
+  .nav button { flex:1; padding:18px; font-size:19px; font-weight:700; border-radius:14px;
+                border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  .nav button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .nav button:disabled { opacity:.4; }
+  .awake { text-align:center; font-size:13px; color:var(--muted); padding:0 0 8px; }
+  .ingbar { padding:10px 18px; border-top:1px solid var(--line); }
+  .ingbar summary { font-size:15px; color:var(--accent); font-weight:600; cursor:pointer; }
+  .ingbar ul { list-style:none; margin:8px 0 4px; padding:0; max-height:38vh; overflow:auto; }
+  .ingbar li { padding:6px 0; border-bottom:1px solid var(--line); }
+  .ingbar .amt { display:inline-block; }
+
+  /* Inline video */
+  .ratio { position:relative; width:100%; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#000; }
+  .ratio iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .player-card[hidden] { display:none; }
+  .player-card { padding:12px; }
+  .closevid { margin-top:10px; background:none; border:1px solid var(--line); border-radius:10px;
+              padding:8px 14px; color:var(--muted); font-size:14px; cursor:pointer; }
+  a.jump { background:var(--accent-soft); padding:3px 9px; border-radius:8px; font-weight:600;
+           color:var(--accent); }
+  .watchbtn { background:var(--accent-soft); color:var(--accent); border:none; border-radius:10px;
+              padding:11px 18px; font-size:15px; font-weight:700; cursor:pointer; }
+  .cookplayer { position:absolute; inset:0; background:#000; display:none; flex-direction:column; z-index:30; }
+  .cookplayer.show { display:flex; }
+  .cookplayer .closevid { margin:12px; align-self:flex-end; color:#fff; border-color:#555; }
+  .cookplayer .vidwrap { flex:1; display:flex; align-items:center; padding:0 14px; }
+  .cookplayer .ratio { width:100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">‹ All recipes</a>
+    <a class="back" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ" target="_blank" rel="noopener">Watch video ↗</a>
+  </div>
+  <h1>Aglio e Olio (Garlic &amp; Olive Oil Spaghetti)</h1>
+  <div class="meta">From Joshua Weissman — 3 Lazy Pasta Recipes (1 of 3)</div>
+  <div class="chips"><span class="chip">⏲ ~15 min</span><span class="chip">📋 9 steps</span></div>
+
+  <div class="card player-card" id="playerCard" hidden>
+    <div class="ratio"><iframe id="ytplayer" title="Recipe video"
+         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <button class="closevid" onclick="hideMain()">✕ Close video</button>
+  </div>
+
+  <div class="card">
+    <h2>Ingredients</h2>
+    <ul class="ing"><li><span class="amt">7 cloves</span><span class="it">garlic, thinly sliced into rounds<span class="note">⚠ Slice (don&#x27;t finely chop) for a sweeter, gentler garlic flavor.</span></span></li><li><span class="amt">~1 cup</span><span class="it">fresh flat-leaf parsley<span class="note">⚠ Finely chopped down to about ½ cup.</span></span></li><li><span class="amt">1 lb</span><span class="it">spaghetti</span></li><li><span class="amt">⅓ cup</span><span class="it">extra virgin olive oil<span class="note">⚠ Can go up to ½ cup if you like it richer.</span></span></li><li><span class="amt">1 tsp – 1 Tbsp</span><span class="it">dried chili flake<span class="note">⚠ Added at the end so it only lightly toasts.</span></span></li><li><span class="amt">~2 Tbsp</span><span class="it">reserved pasta water</span></li><li><span class="amt none">—</span><span class="it">salt<span class="note">⚠ Generous in the pasta water, plus more to taste at the end — amount not stated.</span></span></li><li><span class="amt none">—</span><span class="it">flaky salt + Parmesan, to finish<span class="note">⚠ Optional. Amount not stated.</span></span></li></ul>
+  </div>
+
+  <div class="card">
+    <h2>Steps</h2>
+    <ol class="steps"><li>Slice 7 garlic cloves into thin rounds (no thicker than about ½ inch). Slicing — not finely chopping — keeps the garlic sweet and delicate. Set aside. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=56s" onclick="seekMain(56);return false;">⏱ 0:56 watch</a></li><li>Finely chop about 1 cup of fresh flat-leaf parsley until very fine (you&#x27;ll get roughly ½ cup). Set aside. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=91s" onclick="seekMain(91);return false;">⏱ 1:31 watch</a></li><li>Bring a large pot of water to a boil and season generously with salt. Add 1 lb spaghetti and cook to al dente per the package — about 8 minutes. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=148s" onclick="seekMain(148);return false;">⏱ 2:28 watch</a></li><li>When 4 minutes remain on the pasta, heat ⅓ cup extra virgin olive oil in a pan over medium heat. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=190s" onclick="seekMain(190);return false;">⏱ 3:10 watch</a></li><li>Add the sliced garlic and a touch of salt. Gently sweat / poach it in the oil (don&#x27;t fry it). Lower to medium-low and keep it moving until fragrant, then turn the heat off, add a touch more salt, and swirl. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=204s" onclick="seekMain(204);return false;">⏱ 3:24 watch</a></li><li>With the heat off but the oil still hot, add 1 tsp up to 1 Tbsp dried chili flake to toast it very lightly (it burns fast). <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=270s" onclick="seekMain(270);return false;">⏱ 4:30 watch</a></li><li>Taste a strand of pasta; when al dente, lift it straight into the oil with tongs (a little pasta water clinging is good). Season with a touch of salt and toss to coat. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=287s" onclick="seekMain(287);return false;">⏱ 4:47 watch</a></li><li>Add a couple tablespoons of pasta water and all of the parsley. Fold and toss until it emulsifies and clings to the noodles (no oil pooling in the pan). Taste and add salt now if it needs it. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=300s" onclick="seekMain(300);return false;">⏱ 5:00 watch</a></li><li>Twirl a generous portion into a bowl. Top with a little flaky salt and Parmesan if you like, and serve. <a class="jump" href="https://www.youtube.com/watch?v=7TIrZDzLnAQ&t=320s" onclick="seekMain(320);return false;">⏱ 5:20 watch</a></li></ol>
+  </div>
+</div>
+
+<button class="cookbtn" onclick="openCook()">▶ Cook mode</button>
+
+<div class="cook" id="cook">
+  <header>
+    <div class="dots" id="dots"></div>
+    <button class="x" onclick="closeCook()">✕</button>
+  </header>
+  <div class="stepwrap">
+    <div class="stepnum" id="stepnum"></div>
+    <div class="steptext" id="steptext"></div>
+    <div class="stepjump" id="stepjump"></div>
+  </div>
+  <div class="cookplayer" id="cookPlayer">
+    <button class="closevid" onclick="hideCook()">✕ Back to step</button>
+    <div class="vidwrap"><div class="ratio"><iframe id="cookyt" title="Recipe video"
+         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></div>
+  </div>
+  <div class="awake" id="awake"></div>
+  <details class="ingbar">
+    <summary>Show ingredients</summary>
+    <ul class="ing"><li><span class="amt">7 cloves</span><span class="it">garlic, thinly sliced into rounds<span class="note">⚠ Slice (don&#x27;t finely chop) for a sweeter, gentler garlic flavor.</span></span></li><li><span class="amt">~1 cup</span><span class="it">fresh flat-leaf parsley<span class="note">⚠ Finely chopped down to about ½ cup.</span></span></li><li><span class="amt">1 lb</span><span class="it">spaghetti</span></li><li><span class="amt">⅓ cup</span><span class="it">extra virgin olive oil<span class="note">⚠ Can go up to ½ cup if you like it richer.</span></span></li><li><span class="amt">1 tsp – 1 Tbsp</span><span class="it">dried chili flake<span class="note">⚠ Added at the end so it only lightly toasts.</span></span></li><li><span class="amt">~2 Tbsp</span><span class="it">reserved pasta water</span></li><li><span class="amt none">—</span><span class="it">salt<span class="note">⚠ Generous in the pasta water, plus more to taste at the end — amount not stated.</span></span></li><li><span class="amt none">—</span><span class="it">flaky salt + Parmesan, to finish<span class="note">⚠ Optional. Amount not stated.</span></span></li></ul>
+  </details>
+  <div class="nav">
+    <button id="prev" onclick="go(-1)">‹ Back</button>
+    <button id="next" class="primary" onclick="go(1)">Next ›</button>
+  </div>
+</div>
+
+<script>
+const STEPS = [{"text": "Slice 7 garlic cloves into thin rounds (no thicker than about ½ inch). Slicing — not finely chopping — keeps the garlic sweet and delicate. Set aside.", "timestamp": 56}, {"text": "Finely chop about 1 cup of fresh flat-leaf parsley until very fine (you'll get roughly ½ cup). Set aside.", "timestamp": 91}, {"text": "Bring a large pot of water to a boil and season generously with salt. Add 1 lb spaghetti and cook to al dente per the package — about 8 minutes.", "timestamp": 148}, {"text": "When 4 minutes remain on the pasta, heat ⅓ cup extra virgin olive oil in a pan over medium heat.", "timestamp": 190}, {"text": "Add the sliced garlic and a touch of salt. Gently sweat / poach it in the oil (don't fry it). Lower to medium-low and keep it moving until fragrant, then turn the heat off, add a touch more salt, and swirl.", "timestamp": 204}, {"text": "With the heat off but the oil still hot, add 1 tsp up to 1 Tbsp dried chili flake to toast it very lightly (it burns fast).", "timestamp": 270}, {"text": "Taste a strand of pasta; when al dente, lift it straight into the oil with tongs (a little pasta water clinging is good). Season with a touch of salt and toss to coat.", "timestamp": 287}, {"text": "Add a couple tablespoons of pasta water and all of the parsley. Fold and toss until it emulsifies and clings to the noodles (no oil pooling in the pan). Taste and add salt now if it needs it.", "timestamp": 300}, {"text": "Twirl a generous portion into a bowl. Top with a little flaky salt and Parmesan if you like, and serve.", "timestamp": 320}];
+const SRC = "https://www.youtube.com/watch?v=7TIrZDzLnAQ";
+const VIDEO_ID = "7TIrZDzLnAQ";
+let i = 0, wakeLock = null;
+
+function embedUrl(sec) {
+  return 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
+         '?start=' + Math.floor(sec) + '&autoplay=1&rel=0&playsinline=1';
+}
+function watchUrl(sec) {
+  return SRC + (SRC.includes('?') ? '&' : '?') + 't=' + Math.floor(sec) + 's';
+}
+function embedsBlocked() { return location.protocol === 'file:'; }
+function seekMain(sec) {
+  if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
+  const c = document.getElementById('playerCard');
+  document.getElementById('ytplayer').src = embedUrl(sec);
+  c.hidden = false; c.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function hideMain() {
+  document.getElementById('ytplayer').src = '';
+  document.getElementById('playerCard').hidden = true;
+}
+function seekCook(sec) {
+  if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
+  document.getElementById('cookyt').src = embedUrl(sec);
+  document.getElementById('cookPlayer').classList.add('show');
+}
+function hideCook() {
+  document.getElementById('cookyt').src = '';
+  document.getElementById('cookPlayer').classList.remove('show');
+}
+
+function tsUrl(t) {
+  if (t == null || !SRC) return null;
+  const sep = SRC.includes('?') ? '&' : '?';
+  return SRC + sep + 't=' + Math.floor(t) + 's';
+}
+function fmtTs(t) { if (t==null) return ''; t=Math.floor(t); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+
+function buildDots() {
+  const d = document.getElementById('dots'); d.innerHTML='';
+  STEPS.forEach((_,n)=>{ const e=document.createElement('div'); e.className='dot'; e.dataset.n=n; d.appendChild(e); });
+}
+function render() {
+  const s = STEPS[i];
+  document.getElementById('stepnum').textContent = 'STEP ' + (i+1) + ' OF ' + STEPS.length;
+  document.getElementById('steptext').textContent = s.text;
+  const jump = document.getElementById('stepjump');
+  const u = tsUrl(s.timestamp);
+  jump.innerHTML = (s.timestamp!=null) ? '<button class="watchbtn" onclick="seekCook('+Math.floor(s.timestamp)+')">⏱ Watch this moment ('+fmtTs(s.timestamp)+')</button>' : '';
+  document.querySelectorAll('.dot').forEach((e,n)=>{ e.className='dot'+(n<i?' past':n===i?' on':''); });
+  document.getElementById('prev').disabled = i===0;
+  const nx = document.getElementById('next');
+  nx.textContent = i===STEPS.length-1 ? '✓ Done' : 'Next ›';
+}
+function go(d) {
+  if (i===STEPS.length-1 && d===1) { closeCook(); return; }
+  hideCook();
+  i = Math.max(0, Math.min(STEPS.length-1, i+d)); render();
+}
+async function openCook() {
+  i=0; buildDots(); render(); hideCook();
+  document.getElementById('cook').classList.add('on');
+  try { wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('awake').textContent='Screen will stay awake while cooking'; }
+  catch(e) { document.getElementById('awake').textContent=''; }
+}
+function closeCook() {
+  hideCook();
+  document.getElementById('cook').classList.remove('on');
+  if (wakeLock) { wakeLock.release(); wakeLock=null; }
+}
+document.addEventListener('keydown', e=>{
+  if (!document.getElementById('cook').classList.contains('on')) return;
+  if (e.key==='ArrowRight') go(1); if (e.key==='ArrowLeft') go(-1); if (e.key==='Escape') closeCook();
+});
+</script>
+</body>
+</html>

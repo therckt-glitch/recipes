@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>3 Ingredient Banana Pancakes</title>
+<style>
+  :root {
+    --bg:#fbf7f0; --card:#ffffff; --ink:#2a2320; --muted:#8a7d70;
+    --line:#ece3d6; --accent:#c0562b; --accent-soft:#fdeee6;
+    --warn:#b9770e; --warn-bg:#fef6e3; --done:#3f8a4f;
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { margin:0; }
+  body {
+    background:var(--bg); color:var(--ink);
+    font:18px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap { max-width:640px; margin:0 auto; padding:18px 16px 120px; }
+  a { color:var(--accent); }
+  h1 { font-size:27px; line-height:1.25; margin:4px 0 6px; }
+  .meta { color:var(--muted); font-size:15px; margin-bottom:14px; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 18px; }
+  .chip { background:var(--accent-soft); color:var(--accent); border-radius:999px;
+          padding:6px 13px; font-size:14px; font-weight:600; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px;
+          padding:16px 16px 6px; margin-bottom:16px; }
+  h2 { font-size:15px; letter-spacing:.06em; text-transform:uppercase;
+       color:var(--muted); margin:2px 0 12px; }
+  ul.ing { list-style:none; margin:0; padding:0; }
+  ul.ing li { display:flex; gap:10px; padding:11px 2px; border-bottom:1px solid var(--line);
+              align-items:baseline; }
+  ul.ing li:last-child { border-bottom:none; }
+  .amt { font-weight:700; color:var(--accent); flex:0 0 auto; min-width:78px; }
+  .amt.none { color:var(--warn); }
+  .it { flex:1; }
+  .note { display:block; font-size:13px; color:var(--warn); background:var(--warn-bg);
+          padding:2px 8px; border-radius:6px; margin-top:4px; }
+  ol.steps { margin:0; padding:0; counter-reset:s; list-style:none; }
+  ol.steps li { counter-increment:s; position:relative; padding:12px 0 12px 44px;
+                border-bottom:1px solid var(--line); }
+  ol.steps li:last-child { border-bottom:none; }
+  ol.steps li::before { content:counter(s); position:absolute; left:0; top:11px;
+        width:30px; height:30px; border-radius:50%; background:var(--accent-soft);
+        color:var(--accent); font-weight:700; font-size:15px;
+        display:flex; align-items:center; justify-content:center; }
+  .jump { font-size:13px; color:var(--muted); text-decoration:none; margin-left:6px;
+          white-space:nowrap; }
+  .cookbtn { position:fixed; left:50%; transform:translateX(-50%);
+        bottom:calc(18px + env(safe-area-inset-bottom)); z-index:20;
+        background:var(--accent); color:#fff; border:none; border-radius:999px;
+        padding:15px 30px; font-size:18px; font-weight:700; box-shadow:0 6px 20px rgba(192,86,43,.35);
+        cursor:pointer; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .back { color:var(--muted); text-decoration:none; font-size:15px; }
+
+  /* Cook mode overlay */
+  .cook { position:fixed; inset:0; background:var(--bg); z-index:50; display:none;
+          flex-direction:column; padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .cook.on { display:flex; }
+  .cook header { display:flex; align-items:center; justify-content:space-between;
+                 padding:14px 18px; border-bottom:1px solid var(--line); }
+  .cook header .x { font-size:26px; background:none; border:none; color:var(--muted); cursor:pointer; }
+  .dots { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; flex:1; padding:0 10px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--line); }
+  .dot.on { background:var(--accent); }
+  .dot.past { background:var(--done); }
+  .stepwrap { flex:1; display:flex; flex-direction:column; justify-content:center;
+              padding:20px 26px; overflow:auto; }
+  .stepnum { color:var(--accent); font-weight:700; font-size:16px; letter-spacing:.05em; margin-bottom:14px; }
+  .steptext { font-size:30px; line-height:1.4; font-weight:500; }
+  .stepjump { margin-top:22px; }
+  .nav { display:flex; gap:12px; padding:16px 18px; border-top:1px solid var(--line); }
+  .nav button { flex:1; padding:18px; font-size:19px; font-weight:700; border-radius:14px;
+                border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  .nav button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .nav button:disabled { opacity:.4; }
+  .awake { text-align:center; font-size:13px; color:var(--muted); padding:0 0 8px; }
+  .ingbar { padding:10px 18px; border-top:1px solid var(--line); }
+  .ingbar summary { font-size:15px; color:var(--accent); font-weight:600; cursor:pointer; }
+  .ingbar ul { list-style:none; margin:8px 0 4px; padding:0; max-height:38vh; overflow:auto; }
+  .ingbar li { padding:6px 0; border-bottom:1px solid var(--line); }
+  .ingbar .amt { display:inline-block; }
+
+  /* Inline video */
+  .ratio { position:relative; width:100%; padding-top:56.25%; border-radius:12px; overflow:hidden; background:#000; }
+  .ratio iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .player-card[hidden] { display:none; }
+  .player-card { padding:12px; }
+  .closevid { margin-top:10px; background:none; border:1px solid var(--line); border-radius:10px;
+              padding:8px 14px; color:var(--muted); font-size:14px; cursor:pointer; }
+  a.jump { background:var(--accent-soft); padding:3px 9px; border-radius:8px; font-weight:600;
+           color:var(--accent); }
+  .watchbtn { background:var(--accent-soft); color:var(--accent); border:none; border-radius:10px;
+              padding:11px 18px; font-size:15px; font-weight:700; cursor:pointer; }
+  .cookplayer { position:absolute; inset:0; background:#000; display:none; flex-direction:column; z-index:30; }
+  .cookplayer.show { display:flex; }
+  .cookplayer .closevid { margin:12px; align-self:flex-end; color:#fff; border-color:#555; }
+  .cookplayer .vidwrap { flex:1; display:flex; align-items:center; padding:0 14px; }
+  .cookplayer .ratio { width:100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">‹ All recipes</a>
+    <a class="back" href="https://www.youtube.com/watch?v=ia-GtOh7vus" target="_blank" rel="noopener">Watch video ↗</a>
+  </div>
+  <h1>3 Ingredient Banana Pancakes</h1>
+  <div class="meta">From MOMables - Laura Fuentes</div>
+  <div class="chips"><span class="chip">📋 8 steps</span></div>
+
+  <div class="card player-card" id="playerCard" hidden>
+    <div class="ratio"><iframe id="ytplayer" title="Recipe video"
+         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <button class="closevid" onclick="hideMain()">✕ Close video</button>
+  </div>
+
+  <div class="card">
+    <h2>Ingredients</h2>
+    <ul class="ing"><li><span class="amt">2</span><span class="it">ripe bananas<span class="note">⚠ The batch shown in the video; she notes you can scale up or down.</span></span></li><li><span class="amt">4</span><span class="it">eggs<span class="note">⚠ Ratio is about 2 eggs per banana.</span></span></li><li><span class="amt none">—</span><span class="it">all-purpose flour<span class="note">⚠ Not stated in the video — she measures by eye. See the video&#x27;s description for exact measurements. Add 1 extra tablespoon if the batter is runny.</span></span></li><li><span class="amt none">—</span><span class="it">butter, for greasing the pan<span class="note">⚠ Amount not stated. Oil or cooking spray work too.</span></span></li></ul>
+  </div>
+
+  <div class="card">
+    <h2>Steps</h2>
+    <ol class="steps"><li>Mash the bananas. For the best texture, put a ripe banana in a zip-top bag, seal it, and squeeze with your hands until smooth — this helps hold the batter together. (You can also just mash them with a fork in the bowl.) <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=27s" onclick="seekMain(27);return false;">⏱ 0:27 watch</a></li><li>Snip a bottom corner off the bag and pipe the mashed banana into your bowl. This method leaves no big banana lumps. <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=43s" onclick="seekMain(43);return false;">⏱ 0:43 watch</a></li><li>Add the eggs to the banana. With a fork, break up the yolks first, then whisk the yolks, whites, and banana together. Mash any leftover banana lumps against the side of the bowl. <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=67s" onclick="seekMain(67);return false;">⏱ 1:07 watch</a></li><li>Add the all-purpose flour and mix it into the batter with your fork. Measure it straight into the bowl rather than overpacking, so you don&#x27;t add too much. <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=87s" onclick="seekMain(87);return false;">⏱ 1:27 watch</a></li><li>Check the batter. If it looks thinner or runnier than a thick pancake batter, mix in 1 extra tablespoon of flour. <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=112s" onclick="seekMain(112);return false;">⏱ 1:52 watch</a></li><li>Heat a griddle or non-stick pan and grease the surface with butter (or oil/spray). <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=126s" onclick="seekMain(126);return false;">⏱ 2:06 watch</a></li><li>Pour about ¼ cup of batter per pancake onto the hot greased surface. Cook the first side for about 2 minutes. <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=137s" onclick="seekMain(137);return false;">⏱ 2:17 watch</a></li><li>When the edges look set and a spatula slides underneath easily, flip the pancakes — flipping in the same order you poured them. Cook the second side, then remove. <a class="jump" href="https://www.youtube.com/watch?v=ia-GtOh7vus&t=146s" onclick="seekMain(146);return false;">⏱ 2:26 watch</a></li></ol>
+  </div>
+</div>
+
+<button class="cookbtn" onclick="openCook()">▶ Cook mode</button>
+
+<div class="cook" id="cook">
+  <header>
+    <div class="dots" id="dots"></div>
+    <button class="x" onclick="closeCook()">✕</button>
+  </header>
+  <div class="stepwrap">
+    <div class="stepnum" id="stepnum"></div>
+    <div class="steptext" id="steptext"></div>
+    <div class="stepjump" id="stepjump"></div>
+  </div>
+  <div class="cookplayer" id="cookPlayer">
+    <button class="closevid" onclick="hideCook()">✕ Back to step</button>
+    <div class="vidwrap"><div class="ratio"><iframe id="cookyt" title="Recipe video"
+         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></div>
+  </div>
+  <div class="awake" id="awake"></div>
+  <details class="ingbar">
+    <summary>Show ingredients</summary>
+    <ul class="ing"><li><span class="amt">2</span><span class="it">ripe bananas<span class="note">⚠ The batch shown in the video; she notes you can scale up or down.</span></span></li><li><span class="amt">4</span><span class="it">eggs<span class="note">⚠ Ratio is about 2 eggs per banana.</span></span></li><li><span class="amt none">—</span><span class="it">all-purpose flour<span class="note">⚠ Not stated in the video — she measures by eye. See the video&#x27;s description for exact measurements. Add 1 extra tablespoon if the batter is runny.</span></span></li><li><span class="amt none">—</span><span class="it">butter, for greasing the pan<span class="note">⚠ Amount not stated. Oil or cooking spray work too.</span></span></li></ul>
+  </details>
+  <div class="nav">
+    <button id="prev" onclick="go(-1)">‹ Back</button>
+    <button id="next" class="primary" onclick="go(1)">Next ›</button>
+  </div>
+</div>
+
+<script>
+const STEPS = [{"text": "Mash the bananas. For the best texture, put a ripe banana in a zip-top bag, seal it, and squeeze with your hands until smooth — this helps hold the batter together. (You can also just mash them with a fork in the bowl.)", "timestamp": 27.0}, {"text": "Snip a bottom corner off the bag and pipe the mashed banana into your bowl. This method leaves no big banana lumps.", "timestamp": 43.1}, {"text": "Add the eggs to the banana. With a fork, break up the yolks first, then whisk the yolks, whites, and banana together. Mash any leftover banana lumps against the side of the bowl.", "timestamp": 67.4}, {"text": "Add the all-purpose flour and mix it into the batter with your fork. Measure it straight into the bowl rather than overpacking, so you don't add too much.", "timestamp": 87.2}, {"text": "Check the batter. If it looks thinner or runnier than a thick pancake batter, mix in 1 extra tablespoon of flour.", "timestamp": 112.2}, {"text": "Heat a griddle or non-stick pan and grease the surface with butter (or oil/spray).", "timestamp": 126.0}, {"text": "Pour about ¼ cup of batter per pancake onto the hot greased surface. Cook the first side for about 2 minutes.", "timestamp": 137.7}, {"text": "When the edges look set and a spatula slides underneath easily, flip the pancakes — flipping in the same order you poured them. Cook the second side, then remove.", "timestamp": 146.4}];
+const SRC = "https://www.youtube.com/watch?v=ia-GtOh7vus";
+const VIDEO_ID = "ia-GtOh7vus";
+let i = 0, wakeLock = null;
+
+function embedUrl(sec) {
+  return 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
+         '?start=' + Math.floor(sec) + '&autoplay=1&rel=0&playsinline=1';
+}
+function watchUrl(sec) {
+  return SRC + (SRC.includes('?') ? '&' : '?') + 't=' + Math.floor(sec) + 's';
+}
+function embedsBlocked() { return location.protocol === 'file:'; }
+function seekMain(sec) {
+  if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
+  const c = document.getElementById('playerCard');
+  document.getElementById('ytplayer').src = embedUrl(sec);
+  c.hidden = false; c.scrollIntoView({behavior:'smooth', block:'center'});
+}
+function hideMain() {
+  document.getElementById('ytplayer').src = '';
+  document.getElementById('playerCard').hidden = true;
+}
+function seekCook(sec) {
+  if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
+  document.getElementById('cookyt').src = embedUrl(sec);
+  document.getElementById('cookPlayer').classList.add('show');
+}
+function hideCook() {
+  document.getElementById('cookyt').src = '';
+  document.getElementById('cookPlayer').classList.remove('show');
+}
+
+function tsUrl(t) {
+  if (t == null || !SRC) return null;
+  const sep = SRC.includes('?') ? '&' : '?';
+  return SRC + sep + 't=' + Math.floor(t) + 's';
+}
+function fmtTs(t) { if (t==null) return ''; t=Math.floor(t); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); }
+
+function buildDots() {
+  const d = document.getElementById('dots'); d.innerHTML='';
+  STEPS.forEach((_,n)=>{ const e=document.createElement('div'); e.className='dot'; e.dataset.n=n; d.appendChild(e); });
+}
+function render() {
+  const s = STEPS[i];
+  document.getElementById('stepnum').textContent = 'STEP ' + (i+1) + ' OF ' + STEPS.length;
+  document.getElementById('steptext').textContent = s.text;
+  const jump = document.getElementById('stepjump');
+  const u = tsUrl(s.timestamp);
+  jump.innerHTML = (s.timestamp!=null) ? '<button class="watchbtn" onclick="seekCook('+Math.floor(s.timestamp)+')">⏱ Watch this moment ('+fmtTs(s.timestamp)+')</button>' : '';
+  document.querySelectorAll('.dot').forEach((e,n)=>{ e.className='dot'+(n<i?' past':n===i?' on':''); });
+  document.getElementById('prev').disabled = i===0;
+  const nx = document.getElementById('next');
+  nx.textContent = i===STEPS.length-1 ? '✓ Done' : 'Next ›';
+}
+function go(d) {
+  if (i===STEPS.length-1 && d===1) { closeCook(); return; }
+  hideCook();
+  i = Math.max(0, Math.min(STEPS.length-1, i+d)); render();
+}
+async function openCook() {
+  i=0; buildDots(); render(); hideCook();
+  document.getElementById('cook').classList.add('on');
+  try { wakeLock = await navigator.wakeLock.request('screen');
+        document.getElementById('awake').textContent='Screen will stay awake while cooking'; }
+  catch(e) { document.getElementById('awake').textContent=''; }
+}
+function closeCook() {
+  hideCook();
+  document.getElementById('cook').classList.remove('on');
+  if (wakeLock) { wakeLock.release(); wakeLock=null; }
+}
+document.addEventListener('keydown', e=>{
+  if (!document.getElementById('cook').classList.contains('on')) return;
+  if (e.key==='ArrowRight') go(1); if (e.key==='ArrowLeft') go(-1); if (e.key==='Escape') closeCook();
+});
+</script>
+</body>
+</html>

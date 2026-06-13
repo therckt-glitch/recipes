@@ -1,0 +1,63 @@
+{
+  "title": "3 Ingredient Banana Pancakes",
+  "source_url": "https://www.youtube.com/watch?v=ia-GtOh7vus",
+  "channel": "MOMables - Laura Fuentes",
+  "servings": null,
+  "total_time": null,
+  "ingredients": [
+    {
+      "amount": "2",
+      "item": "ripe bananas",
+      "note": "The batch shown in the video; she notes you can scale up or down."
+    },
+    {
+      "amount": "4",
+      "item": "eggs",
+      "note": "Ratio is about 2 eggs per banana."
+    },
+    {
+      "amount": null,
+      "item": "all-purpose flour",
+      "note": "Not stated in the video — she measures by eye. See the video's description for exact measurements. Add 1 extra tablespoon if the batter is runny."
+    },
+    {
+      "amount": null,
+      "item": "butter, for greasing the pan",
+      "note": "Amount not stated. Oil or cooking spray work too."
+    }
+  ],
+  "steps": [
+    {
+      "text": "Mash the bananas. For the best texture, put a ripe banana in a zip-top bag, seal it, and squeeze with your hands until smooth — this helps hold the batter together. (You can also just mash them with a fork in the bowl.)",
+      "timestamp": 27.0
+    },
+    {
+      "text": "Snip a bottom corner off the bag and pipe the mashed banana into your bowl. This method leaves no big banana lumps.",
+      "timestamp": 43.1
+    },
+    {
+      "text": "Add the eggs to the banana. With a fork, break up the yolks first, then whisk the yolks, whites, and banana together. Mash any leftover banana lumps against the side of the bowl.",
+      "timestamp": 67.4
+    },
+    {
+      "text": "Add the all-purpose flour and mix it into the batter with your fork. Measure it straight into the bowl rather than overpacking, so you don't add too much.",
+      "timestamp": 87.2
+    },
+    {
+      "text": "Check the batter. If it looks thinner or runnier than a thick pancake batter, mix in 1 extra tablespoon of flour.",
+      "timestamp": 112.2
+    },
+    {
+      "text": "Heat a griddle or non-stick pan and grease the surface with butter (or oil/spray).",
+      "timestamp": 126.0
+    },
+    {
+      "text": "Pour about ¼ cup of batter per pancake onto the hot greased surface. Cook the first side for about 2 minutes.",
+      "timestamp": 137.7
+    },
+    {
+      "text": "When the edges look set and a spatula slides underneath easily, flip the pancakes — flipping in the same order you poured them. Cook the second side, then remove.",
+      "timestamp": 146.4
+    }
+  ]
+}
