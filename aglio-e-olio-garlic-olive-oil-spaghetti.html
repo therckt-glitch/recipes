@@ -112,8 +112,7 @@
   <div class="chips"><span class="chip">⏲ ~15 min</span><span class="chip">📋 9 steps</span></div>
 
   <div class="card player-card" id="playerCard" hidden>
-    <div class="ratio"><iframe id="ytplayer" title="Recipe video"
-         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+    <div class="ratio"><div id="ytplayer"></div></div>
     <button class="closevid" onclick="hideMain()">✕ Close video</button>
   </div>
 
@@ -142,8 +141,7 @@
   </div>
   <div class="cookplayer" id="cookPlayer">
     <button class="closevid" onclick="hideCook()">✕ Back to step</button>
-    <div class="vidwrap"><div class="ratio"><iframe id="cookyt" title="Recipe video"
-         allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div></div>
+    <div class="vidwrap"><div class="ratio"><div id="cookyt"></div></div></div>
   </div>
   <div class="awake" id="awake"></div>
   <details class="ingbar">
@@ -162,31 +160,51 @@ const SRC = "https://www.youtube.com/watch?v=7TIrZDzLnAQ";
 const VIDEO_ID = "7TIrZDzLnAQ";
 let i = 0, wakeLock = null;
 
-function embedUrl(sec) {
-  return 'https://www.youtube-nocookie.com/embed/' + VIDEO_ID +
-         '?start=' + Math.floor(sec) + '&autoplay=1&rel=0&playsinline=1';
-}
 function watchUrl(sec) {
   return SRC + (SRC.includes('?') ? '&' : '?') + 't=' + Math.floor(sec) + 's';
 }
 function embedsBlocked() { return location.protocol === 'file:'; }
+
+// Drive the players with the YouTube IFrame API so a single click (a real user
+// gesture) loads AND plays with sound — autoplay=1 alone gets blocked by browsers.
+var mainPlayer=null, cookPlayer=null;
+var ready={main:false, cook:false}, pending={main:null, cook:null};
+function makePlayer(id, key) {
+  return new YT.Player(id, {
+    host: 'https://www.youtube-nocookie.com',
+    playerVars: { playsinline:1, rel:0 },
+    events: { onReady: function() {
+      ready[key]=true;
+      if (pending[key]!=null) { play(key, pending[key]); pending[key]=null; }
+    } }
+  });
+}
+function onYouTubeIframeAPIReady() {
+  mainPlayer = makePlayer('ytplayer','main');
+  cookPlayer = makePlayer('cookyt','cook');
+}
+function play(key, sec) {
+  var p = (key==='main') ? mainPlayer : cookPlayer;
+  if (p && ready[key]) { p.loadVideoById({ videoId: VIDEO_ID, startSeconds: Math.floor(sec) }); }
+  else { pending[key] = sec; }
+}
 function seekMain(sec) {
   if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
-  const c = document.getElementById('playerCard');
-  document.getElementById('ytplayer').src = embedUrl(sec);
+  var c = document.getElementById('playerCard');
   c.hidden = false; c.scrollIntoView({behavior:'smooth', block:'center'});
+  play('main', sec);
 }
 function hideMain() {
-  document.getElementById('ytplayer').src = '';
+  if (mainPlayer && ready.main) { try { mainPlayer.stopVideo(); } catch(e) {} }
   document.getElementById('playerCard').hidden = true;
 }
 function seekCook(sec) {
   if (embedsBlocked()) { window.open(watchUrl(sec), '_blank'); return; }
-  document.getElementById('cookyt').src = embedUrl(sec);
   document.getElementById('cookPlayer').classList.add('show');
+  play('cook', sec);
 }
 function hideCook() {
-  document.getElementById('cookyt').src = '';
+  if (cookPlayer && ready.cook) { try { cookPlayer.stopVideo(); } catch(e) {} }
   document.getElementById('cookPlayer').classList.remove('show');
 }
 
@@ -235,5 +253,6 @@ document.addEventListener('keydown', e=>{
   if (e.key==='ArrowRight') go(1); if (e.key==='ArrowLeft') go(-1); if (e.key==='Escape') closeCook();
 });
 </script>
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
