@@ -1,16 +1,35 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Our Recipes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Emily's Cookbook</title>
 <style>
- body{background:#fbf7f0;color:#2a2320;font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;}
- .wrap{max-width:640px;margin:0 auto;padding:26px 16px 60px;}
- h1{font-size:28px;margin:0 0 4px;} .sub{color:#8a7d70;margin:0 0 22px;}
- a.card{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #ece3d6;
-   border-radius:16px;padding:16px 18px;margin-bottom:13px;}
- a.card:active{background:#fdeee6;}
- .t{font-size:20px;font-weight:600;} .m{color:#8a7d70;font-size:14px;margin-top:3px;}
- .empty{color:#8a7d70;text-align:center;padding:40px 0;}
+ :root{--bg:#fbf7f0;--card:#fff;--ink:#2a2320;--muted:#8a7d70;--line:#ece3d6;--accent:#c0562b;--soft:#fdeee6;}
+ *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+ body{background:var(--bg);color:var(--ink);margin:0;
+   font:18px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+   padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+ .wrap{max-width:640px;margin:0 auto;padding:30px 16px 50px;}
+ .hero{text-align:center;margin-bottom:24px;}
+ .hero h1{font-size:30px;margin:0 0 6px;letter-spacing:-.01em;}
+ .hero p{color:var(--muted);margin:0;font-size:15px;}
+ .count{display:inline-block;margin-top:13px;background:var(--soft);color:var(--accent);
+   font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;}
+ a.card{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;background:var(--card);
+   border:1px solid var(--line);border-radius:16px;padding:13px 15px;margin-bottom:12px;transition:transform .06s;}
+ a.card:active{background:var(--soft);transform:scale(.99);}
+ .emoji{flex:0 0 auto;width:52px;height:52px;border-radius:14px;background:var(--soft);
+   display:flex;align-items:center;justify-content:center;font-size:27px;}
+ .info{flex:1;min-width:0;}
+ .t{display:block;font-size:19px;font-weight:600;line-height:1.25;}
+ .m{display:block;color:var(--muted);font-size:14px;margin-top:3px;}
+ .chev{flex:0 0 auto;color:#d8cdbd;font-size:22px;}
+ .empty{color:var(--muted);text-align:center;padding:40px 0;}
+ footer{text-align:center;color:var(--muted);font-size:13px;margin-top:28px;}
 </style></head><body><div class="wrap">
-<h1>Our Recipes 🍳</h1><p class="sub">Tap a recipe, then tap “Cook mode” to step through it hands-free.</p>
-<a class="card" href="3-ingredient-banana-pancakes.html"><div class="t">3 Ingredient Banana Pancakes</div><div class="m">8 steps</div></a><a class="card" href="aglio-e-olio-garlic-olive-oil-spaghetti.html"><div class="t">Aglio e Olio (Garlic &amp; Olive Oil Spaghetti)</div><div class="m">~15 min · 9 steps</div></a><a class="card" href="basil-pesto-farfalle.html"><div class="t">Basil Pesto Farfalle</div><div class="m">~15 min · 8 steps</div></a><a class="card" href="gochujang-vodka-rigatoni.html"><div class="t">Gochujang Vodka Rigatoni</div><div class="m">~15 min · 10 steps</div></a>
+<div class="hero">
+  <h1>Emily's Cookbook 🍳</h1>
+  <p>Tap a recipe, then “Cook mode” to step through it hands-free.</p>
+  <div class="count">4 recipes</div>
+</div>
+<a class="card" href="3-ingredient-banana-pancakes.html"><span class="emoji">🥞</span><span class="info"><span class="t">3 Ingredient Banana Pancakes</span><span class="m">8 steps</span></span><span class="chev">›</span></a><a class="card" href="aglio-e-olio-garlic-olive-oil-spaghetti.html"><span class="emoji">🧄</span><span class="info"><span class="t">Aglio e Olio (Garlic &amp; Olive Oil Spaghetti)</span><span class="m">~15 min · 9 steps</span></span><span class="chev">›</span></a><a class="card" href="basil-pesto-farfalle.html"><span class="emoji">🌿</span><span class="info"><span class="t">Basil Pesto Farfalle</span><span class="m">~15 min · 8 steps</span></span><span class="chev">›</span></a><a class="card" href="gochujang-vodka-rigatoni.html"><span class="emoji">🍝</span><span class="info"><span class="t">Gochujang Vodka Rigatoni</span><span class="m">~15 min · 10 steps</span></span><span class="chev">›</span></a>
+<footer>Made with ❤️ — no more rewinding videos</footer>
 </div></body></html>
